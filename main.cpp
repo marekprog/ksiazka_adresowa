@@ -25,13 +25,11 @@ struct uzytkownik{
     string psswd;
 };
 
-int wpiszRekord(vector<wpis> *ksiazkaAdresowa,int indeks){
+int wpiszRekord(vector<wpis> *ksiazkaAdresowa,int indeks,int poczatek ){
 
     wpis nowyRekord;
-    if (ksiazkaAdresowa->size()==0)
-        nowyRekord.id=1;
-    else
-        nowyRekord.id=ksiazkaAdresowa->back().id+1;
+
+    nowyRekord.id=poczatek+1;
     cout<<"Wprowadz imie: "<<endl;
     cin>>nowyRekord.imie;
     cout<<"Wprowadz nazwisko: "<<endl;
@@ -71,7 +69,7 @@ int zapisDoPliku(vector<wpis> *ksiazkaAdresowa){
 }
 
 
-void odczytPliku(vector<wpis> *ksiazkaAdresowa, int indeks){
+int odczytPliku(vector<wpis> *ksiazkaAdresowa, int indeks){
 
     wpis wczytanyRekord;
     string temp;
@@ -80,6 +78,7 @@ void odczytPliku(vector<wpis> *ksiazkaAdresowa, int indeks){
     if(plik.good()==false)
     {
         cout<<"Nie udalo sie zaimportowac kontaktow"<<endl;
+        wczytanyRekord.id=0;
         sleep(1);
     }
     string linia;
@@ -89,14 +88,16 @@ void odczytPliku(vector<wpis> *ksiazkaAdresowa, int indeks){
         getline(sstr,temp,'|');
         wczytanyRekord.id=stoi(temp);
         getline(sstr,temp,'|');
-        wczytanyRekord.idUzytkownika=stoi(temp);//to nam niepotrzebne
+        wczytanyRekord.idUzytkownika=stoi(temp);
         getline(sstr,wczytanyRekord.imie,'|');
         getline(sstr,wczytanyRekord.nazwisko,'|');
         getline(sstr,wczytanyRekord.adres,'|');
         getline(sstr,wczytanyRekord.nrTel,'|');
         getline(sstr,wczytanyRekord.email,'|');
-        ksiazkaAdresowa->push_back(wczytanyRekord);
+        if(wczytanyRekord.idUzytkownika==indeks)
+            ksiazkaAdresowa->push_back(wczytanyRekord);
     }
+    return wczytanyRekord.id;
 }
 
 int wyswietlWszystkich(vector<wpis> *ksiazkaAdresowa){
@@ -295,11 +296,12 @@ int edycjaAdresata(vector<wpis> *ksiazkaAdresowa){
     return 0;
 }
 //FUNKCJE LOGOWANIA
-void menuKsiazki(int wybor, vector<wpis> ksiazkaAdresowa,int indeks);
+void menuKsiazki(vector<wpis> ksiazkaAdresowa,int indeks,int startWektora);
 int dodajUzytkownika(vector<uzytkownik> *uzytkownicy);
 int zapiszLogowania(vector<uzytkownik> *uzytkownicy);
 void odczytUzytkownikow(vector<uzytkownik> *uzytkownicy);
 int logowanie(vector<uzytkownik> *uzytkownicy,int iloscProb);
+int zapisDoPlikuTemp(vector<wpis> *ksiazkaAdresowa);
 
 
 
@@ -330,8 +332,8 @@ int main()
             if (indeks>0){
                 cout<<"Logowanie powiodło sie. "<<endl;
                 sleep(1);
-                odczytPliku(&ksiazkaAdresowa,indeks);
-                menuKsiazki(0,ksiazkaAdresowa,indeks);
+                //odczytPliku(&ksiazkaAdresowa,indeks);
+                menuKsiazki(ksiazkaAdresowa,indeks,odczytPliku(&ksiazkaAdresowa,indeks));
             }
             else{
                 cout<<"Logowanie nie powiodlo sie"<<endl;
@@ -340,7 +342,6 @@ int main()
             break;
         case 2:
             cout<<"Rejestracja"<<endl;
-            //dodaj uzytkownika
             dodajUzytkownika(&uzytkownicy);
             zapiszLogowania(&uzytkownicy);
             opcja=0;
@@ -355,16 +356,13 @@ int main()
         }
     }
 
-
-
-
     int wybor=0;
-    //menuKsiazki(wybor,ksiazkaAdresowa);
-
     return 0;
 }
 
-void menuKsiazki(int wybor,vector<wpis> ksiazkaAdresowa,int indeks){
+void menuKsiazki(vector<wpis> ksiazkaAdresowa,int indeks,int startWektora){
+    int wybor=0;
+    int poczatek = startWektora;
     while(wybor==0)
 
     {
@@ -387,8 +385,8 @@ void menuKsiazki(int wybor,vector<wpis> ksiazkaAdresowa,int indeks){
         switch (wybor) {
         case 1:
             system("clear");
-            wybor=wpiszRekord(&ksiazkaAdresowa,indeks);
-            wybor=zapisDoPliku(&ksiazkaAdresowa);
+            wybor=wpiszRekord(&ksiazkaAdresowa,indeks,poczatek);
+            wybor=zapisDoPlikuTemp(&ksiazkaAdresowa);
             break;
         case 2:
             system("clear");
@@ -405,12 +403,12 @@ void menuKsiazki(int wybor,vector<wpis> ksiazkaAdresowa,int indeks){
         case 5:
             system("clear");
             wybor=usunAdresata(&ksiazkaAdresowa);
-            wybor=zapisDoPliku(&ksiazkaAdresowa);
+            //wybor=zapisDoPliku(&ksiazkaAdresowa);
             break;
         case 6:
             system("clear");
             wybor=edycjaAdresata(&ksiazkaAdresowa);
-            wybor=zapisDoPliku(&ksiazkaAdresowa);
+            //wybor=zapisDoPliku(&ksiazkaAdresowa);
             break;
         case 7:
             system("clear");
@@ -509,6 +507,23 @@ int logowanie(vector<uzytkownik> *uzytkownicy,int iloscProb){
     }
 
     return index;
+}
+
+int zapisDoPlikuTemp(vector<wpis> *ksiazkaAdresowa){
+
+    cout<<"Zapisuje do pliku temp..."<<endl;
+    fstream plik;
+    plik.open("temp.txt",ios::out |ios::trunc);
+    for (int i=0; i<ksiazkaAdresowa->size(); i++)
+    {
+        plik<<ksiazkaAdresowa->at(i).id<<"|"<<ksiazkaAdresowa->at(i).idUzytkownika<<"|"<<ksiazkaAdresowa->at(i).imie
+            <<"|"<<ksiazkaAdresowa->at(i).nazwisko<<"|"<<ksiazkaAdresowa->at(i).adres
+            <<"|"<<ksiazkaAdresowa->at(i).nrTel<<"|"<<ksiazkaAdresowa->at(i).email<<endl;
+    }
+    plik.close();
+    sleep(1);
+
+    return 0;
 }
 
 
