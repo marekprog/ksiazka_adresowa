@@ -11,6 +11,7 @@ using namespace std;
 struct wpis{
 
     int id;
+    int idUzytkownika;
     string imie;
     string nazwisko;
     string adres;
@@ -24,7 +25,7 @@ struct uzytkownik{
     string psswd;
 };
 
-int wpiszRekord(vector<wpis> *ksiazkaAdresowa){
+int wpiszRekord(vector<wpis> *ksiazkaAdresowa,int indeks){
 
     wpis nowyRekord;
     if (ksiazkaAdresowa->size()==0)
@@ -43,6 +44,7 @@ int wpiszRekord(vector<wpis> *ksiazkaAdresowa){
     getline(cin,nowyRekord.nrTel);
     cout<<"Wprowadz adres email: "<<endl;
     cin>>nowyRekord.email;
+    nowyRekord.idUzytkownika=indeks;
     ksiazkaAdresowa->push_back(nowyRekord);
     system("clear");
     cout<<"Zapisano nowy wpis \n";
@@ -58,7 +60,7 @@ int zapisDoPliku(vector<wpis> *ksiazkaAdresowa){
     plik.open("kontakty.txt",ios::out |ios::trunc);
     for (int i=0; i<ksiazkaAdresowa->size(); i++)
     {
-        plik<<ksiazkaAdresowa->at(i).id<<"|"<<ksiazkaAdresowa->at(i).imie
+        plik<<ksiazkaAdresowa->at(i).id<<"|"<<ksiazkaAdresowa->at(i).idUzytkownika<<"|"<<ksiazkaAdresowa->at(i).imie
             <<"|"<<ksiazkaAdresowa->at(i).nazwisko<<"|"<<ksiazkaAdresowa->at(i).adres
             <<"|"<<ksiazkaAdresowa->at(i).nrTel<<"|"<<ksiazkaAdresowa->at(i).email<<endl;
     }
@@ -69,7 +71,7 @@ int zapisDoPliku(vector<wpis> *ksiazkaAdresowa){
 }
 
 
-void odczytPliku(vector<wpis> *ksiazkaAdresowa){
+void odczytPliku(vector<wpis> *ksiazkaAdresowa, int indeks){
 
     wpis wczytanyRekord;
     string temp;
@@ -86,6 +88,8 @@ void odczytPliku(vector<wpis> *ksiazkaAdresowa){
         stringstream sstr(linia);
         getline(sstr,temp,'|');
         wczytanyRekord.id=stoi(temp);
+        getline(sstr,temp,'|');
+        wczytanyRekord.idUzytkownika=stoi(temp);//to nam niepotrzebne
         getline(sstr,wczytanyRekord.imie,'|');
         getline(sstr,wczytanyRekord.nazwisko,'|');
         getline(sstr,wczytanyRekord.adres,'|');
@@ -98,13 +102,15 @@ void odczytPliku(vector<wpis> *ksiazkaAdresowa){
 int wyswietlWszystkich(vector<wpis> *ksiazkaAdresowa){
 
     cout.setf(ios::left);
-    cout.width(3);
+    cout.width(5);
     cout<<"ID";
+    cout.width(5);
+    cout<<"UZYT";
     cout.width(15);
     cout<<"IMIE";
     cout.width(15);
     cout<<"NAZWISKO";
-    cout.width(15);
+    cout.width(20);
     cout<<"ADRES";
     cout.width(15);
     cout<<"NR TELEFONU";
@@ -114,13 +120,15 @@ int wyswietlWszystkich(vector<wpis> *ksiazkaAdresowa){
     for(int i=0; i<ksiazkaAdresowa->size(); i++)
     {
 
-        cout.width(3);
+        cout.width(5);
         cout<<ksiazkaAdresowa->at(i).id;
+        cout.width(5);
+        cout<<ksiazkaAdresowa->at(i).idUzytkownika;
         cout.width(15);
         cout<<ksiazkaAdresowa->at(i).imie;
         cout.width(15);
         cout<<ksiazkaAdresowa->at(i).nazwisko;
-        cout.width(15);
+        cout.width(20);
         cout<<ksiazkaAdresowa->at(i).adres;
         cout.width(15);
         cout<<ksiazkaAdresowa->at(i).nrTel;
@@ -286,18 +294,27 @@ int edycjaAdresata(vector<wpis> *ksiazkaAdresowa){
     }
     return 0;
 }
-void menuKsiazki(int wybor, vector<wpis> ksiazkaAdresowa);
+//FUNKCJE LOGOWANIA
+void menuKsiazki(int wybor, vector<wpis> ksiazkaAdresowa,int indeks);
 int dodajUzytkownika(vector<uzytkownik> *uzytkownicy);
+int zapiszLogowania(vector<uzytkownik> *uzytkownicy);
+void odczytUzytkownikow(vector<uzytkownik> *uzytkownicy);
+int logowanie(vector<uzytkownik> *uzytkownicy,int iloscProb);
+
+
+
 
 int main()
 {
 
     system("clear");
-    int opcja=0;
+    int opcja{0},indeks{0};
     vector<wpis> ksiazkaAdresowa;
     vector<uzytkownik> uzytkownicy;
+    odczytUzytkownikow(&uzytkownicy);
     while(opcja ==0){
         //MENU GLOWNE
+        system("clear");
         cout<<"KSIAZKA ADRESOWA"<<endl;
         cout<<"-----------------------"<<endl;
         cout<<"ilosc zarejestrowanych uzytkownikow: "<<uzytkownicy.size()<<endl;
@@ -309,19 +326,28 @@ int main()
         switch (opcja) {
         case 1:
             cout<<"Logowanie"<<endl;
-            odczytPliku(&ksiazkaAdresowa);
-            menuKsiazki(0,ksiazkaAdresowa);
+            indeks=logowanie(&uzytkownicy,3);
+            if (indeks>0){
+                cout<<"Logowanie powiodło sie. "<<endl;
+                sleep(1);
+                odczytPliku(&ksiazkaAdresowa,indeks);
+                menuKsiazki(0,ksiazkaAdresowa,indeks);
+            }
+            else{
+                cout<<"Logowanie nie powiodlo sie"<<endl;
+                opcja=0;
+            }
             break;
         case 2:
             cout<<"Rejestracja"<<endl;
             //dodaj uzytkownika
             dodajUzytkownika(&uzytkownicy);
+            zapiszLogowania(&uzytkownicy);
             opcja=0;
             break;
         case 3:
             cout<<"Zamykam program"<<endl;
             exit(0);
-            opcja=0;
             break;
         default:
             opcja=0;
@@ -338,7 +364,7 @@ int main()
     return 0;
 }
 
-void menuKsiazki(int wybor,vector<wpis> ksiazkaAdresowa){
+void menuKsiazki(int wybor,vector<wpis> ksiazkaAdresowa,int indeks){
     while(wybor==0)
 
     {
@@ -361,7 +387,7 @@ void menuKsiazki(int wybor,vector<wpis> ksiazkaAdresowa){
         switch (wybor) {
         case 1:
             system("clear");
-            wybor=wpiszRekord(&ksiazkaAdresowa);
+            wybor=wpiszRekord(&ksiazkaAdresowa,indeks);
             wybor=zapisDoPliku(&ksiazkaAdresowa);
             break;
         case 2:
@@ -417,6 +443,72 @@ int dodajUzytkownika(vector<uzytkownik> *uzytkownicy){
     sleep(1);
     system("clear");
     return 0;
+}
+
+int zapiszLogowania(vector<uzytkownik> *uzytkownicy){
+
+    cout<<"Zapisuje nowego uzytkownika..."<<endl;
+    fstream plik;
+    plik.open("uzytkownicy.txt",ios::out);
+    for (int i=0; i<uzytkownicy->size(); i++)
+    {
+        plik<<uzytkownicy->at(i).id<<"|"<<uzytkownicy->at(i).nazwa
+            <<"|"<<uzytkownicy->at(i).psswd<<endl;
+    }
+    plik.close();
+    sleep(1);
+
+    return 0;
+}
+
+void odczytUzytkownikow(vector<uzytkownik> *uzytkownicy){
+
+    uzytkownik wczytanyRekord;
+    string temp;
+    fstream plik;
+    plik.open("uzytkownicy.txt",ios::in);
+    if(plik.good()==false)
+    {
+        cout<<"Nie udalo sie zaimportowac kontaktow"<<endl;
+        sleep(1);
+    }
+    string linia;
+    while(getline(plik,linia))
+    {
+        stringstream sstr(linia);
+        getline(sstr,temp,'|');
+        wczytanyRekord.id=stoi(temp);
+        getline(sstr,wczytanyRekord.nazwa,'|');
+        getline(sstr,wczytanyRekord.psswd,'|');
+        uzytkownicy->push_back(wczytanyRekord);
+    }
+}
+int logowanie(vector<uzytkownik> *uzytkownicy,int iloscProb){
+    bool test=false;
+    int index=0;
+    string login,haslo;
+    while(!test && iloscProb>0){
+        system("clear");
+        cout<<"Pozostalo prob: "<<iloscProb<<endl;
+        cout<<"Podaj login "<<endl;
+        cin>>login;
+        cout<<"Podaj haslo "<<endl;
+        cin>>haslo;
+        for (int i =0;i<uzytkownicy->size();i++){
+            if (login==uzytkownicy->at(i).nazwa){
+                if (haslo==uzytkownicy->at(i).psswd){
+                    test=test||true;
+                    index=uzytkownicy->at(i).id;
+                }
+            }
+
+
+        }
+        iloscProb--;
+
+    }
+
+    return index;
 }
 
 
