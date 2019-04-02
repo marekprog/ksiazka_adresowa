@@ -18,6 +18,12 @@ struct wpis{
     string email;
 };
 
+struct uzytkownik{
+    int id;
+    string nazwa;
+    string psswd;
+}
+
 int wpiszRekord(vector<wpis> *ksiazkaAdresowa){
 
     wpis nowyRekord;
