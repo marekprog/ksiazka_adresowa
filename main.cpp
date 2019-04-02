@@ -22,7 +22,7 @@ struct uzytkownik{
     int id;
     string nazwa;
     string psswd;
-}
+};
 
 int wpiszRekord(vector<wpis> *ksiazkaAdresowa){
 
@@ -286,12 +286,59 @@ int edycjaAdresata(vector<wpis> *ksiazkaAdresowa){
     }
     return 0;
 }
+void menuKsiazki(int wybor, vector<wpis> ksiazkaAdresowa);
+int dodajUzytkownika(vector<uzytkownik> *uzytkownicy);
 
 int main()
 {
+
+    system("clear");
+    int opcja=0;
     vector<wpis> ksiazkaAdresowa;
-    odczytPliku(&ksiazkaAdresowa);
+    vector<uzytkownik> uzytkownicy;
+    while(opcja ==0){
+        //MENU GLOWNE
+        cout<<"KSIAZKA ADRESOWA"<<endl;
+        cout<<"-----------------------"<<endl;
+        cout<<"ilosc zarejestrowanych uzytkownikow: "<<uzytkownicy.size()<<endl;
+        cout<<"-----------------------"<<endl;
+        cout<<"1. Logowanie"<<endl;
+        cout<<"2. Rejestracja"<<endl;
+        cout<<"3. Zamknij program"<<endl;
+        cin>>opcja;
+        switch (opcja) {
+        case 1:
+            cout<<"Logowanie"<<endl;
+            odczytPliku(&ksiazkaAdresowa);
+            menuKsiazki(0,ksiazkaAdresowa);
+            break;
+        case 2:
+            cout<<"Rejestracja"<<endl;
+            //dodaj uzytkownika
+            dodajUzytkownika(&uzytkownicy);
+            opcja=0;
+            break;
+        case 3:
+            cout<<"Zamykam program"<<endl;
+            exit(0);
+            opcja=0;
+            break;
+        default:
+            opcja=0;
+            break;
+        }
+    }
+
+
+
+
     int wybor=0;
+    //menuKsiazki(wybor,ksiazkaAdresowa);
+
+    return 0;
+}
+
+void menuKsiazki(int wybor,vector<wpis> ksiazkaAdresowa){
     while(wybor==0)
 
     {
@@ -351,5 +398,25 @@ int main()
             break;
         }
     }
+}
+
+int dodajUzytkownika(vector<uzytkownik> *uzytkownicy){
+
+    uzytkownik nowyRekord;
+    if (uzytkownicy->size()==0)
+        nowyRekord.id=1;
+    else
+        nowyRekord.id=uzytkownicy->back().id+1;
+    cout<<"Wprowadz nazwe: "<<endl;
+    cin>>nowyRekord.nazwa;
+    cout<<"Wprowadz haslo: "<<endl;
+    cin>>nowyRekord.psswd;
+    uzytkownicy->push_back(nowyRekord);
+    system("clear");
+    cout<<"Zapisano nowego uzytkownika \n";
+    sleep(1);
+    system("clear");
     return 0;
 }
+
+
