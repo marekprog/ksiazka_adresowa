@@ -30,7 +30,6 @@ int wpiszRekord(vector<wpis> *ksiazkaAdresowa,int indeks,int *poczatek ){
     wpis nowyRekord;
 
     nowyRekord.id=*poczatek+1;
-    cout<<*poczatek<<endl;
     cout<<"Wprowadz imie: "<<endl;
     cin>>nowyRekord.imie;
     cout<<"Wprowadz nazwisko: "<<endl;
@@ -50,7 +49,6 @@ int wpiszRekord(vector<wpis> *ksiazkaAdresowa,int indeks,int *poczatek ){
     sleep(1);
     system("clear");
     *poczatek=nowyRekord.id;
-    sleep(3);
     return 0;
 }
 
@@ -203,7 +201,7 @@ int usunAdresata(vector<wpis> *ksiazkaAdresowa){
     cout<<"Chcesz usunac "<<adresatDoUsuniecia.begin()->imie<<" "<<adresatDoUsuniecia.begin()->nazwisko<<"?"<<endl;
 
     while(true) {
-        cout<<"Wciscnij [t] lub [n]"<<endl;
+        cout<<"Wcisnij [t] lub [n]"<<endl;
         char wybor;
         cin>>wybor;
         cout<<"wcisnales: "<<wybor<<endl;
@@ -389,6 +387,7 @@ void menuKsiazki(vector<wpis> ksiazkaAdresowa,int indeks,int startWektora){
         case 1:
             system("clear");
             wybor=wpiszRekord(&ksiazkaAdresowa,indeks,&poczatek);
+            nadpiszPlik(&ksiazkaAdresowa, indeks);
             break;
         case 2:
             system("clear");
@@ -405,14 +404,16 @@ void menuKsiazki(vector<wpis> ksiazkaAdresowa,int indeks,int startWektora){
         case 5:
             system("clear");
             wybor=usunAdresata(&ksiazkaAdresowa);
+            nadpiszPlik(&ksiazkaAdresowa, indeks);
             break;
         case 6:
             system("clear");
             wybor=edycjaAdresata(&ksiazkaAdresowa);
+            nadpiszPlik(&ksiazkaAdresowa, indeks);
             break;
         case 7:
             system("clear");
-            nadpiszPlik(&ksiazkaAdresowa, indeks);
+            //nadpiszPlik(&ksiazkaAdresowa, indeks);
             cout<<"goodbye!!!"<<endl;
             sleep(1);
             exit(0);
