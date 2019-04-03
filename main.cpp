@@ -301,6 +301,7 @@ int edycjaAdresata(vector<wpis> *ksiazkaAdresowa){
 //FUNKCJE Z LOGOWANIEM
 void menuKsiazki(vector<wpis> ksiazkaAdresowa,int indeks,int startWektora);
 int dodajUzytkownika(vector<uzytkownik> *uzytkownicy);
+bool sprawdzCzyJestUzytkownik(vector<uzytkownik> uzytkownicy,string nazwa);
 int zapiszLogowania(vector<uzytkownik> *uzytkownicy);
 void odczytUzytkownikow(vector<uzytkownik> *uzytkownicy);
 int logowanie(vector<uzytkownik> *uzytkownicy,int iloscProb);
@@ -433,8 +434,12 @@ int dodajUzytkownika(vector<uzytkownik> *uzytkownicy){
         nowyRekord.id=1;
     else
         nowyRekord.id=uzytkownicy->back().id+1;
-    cout<<"Wprowadz nazwe: "<<endl;
-    cin>>nowyRekord.nazwa;
+    do{
+        cout<<"Wprowadz nazwe: "<<endl;
+        cin>>nowyRekord.nazwa;
+        if(sprawdzCzyJestUzytkownik(*uzytkownicy,nowyRekord.nazwa))
+            cout<<"nazwa zajeta, sprobuj jeszcze raz. "<<endl;
+    }while(sprawdzCzyJestUzytkownik(*uzytkownicy,nowyRekord.nazwa));
     cout<<"Wprowadz haslo: "<<endl;
     cin>>nowyRekord.psswd;
     uzytkownicy->push_back(nowyRekord);
@@ -550,5 +555,15 @@ void nadpiszPlik(vector<wpis> *ksiazkaAdresowa,int indeks){
     rename(nazwaTymcz.c_str(),nazwaOryg.c_str());
 }
 
+bool sprawdzCzyJestUzytkownik(vector<uzytkownik> uzytkownicy,string nazwa){
+    bool test= false;
+    for(int i=0; i<uzytkownicy.size(); i++) {
+        if(uzytkownicy.at(i).nazwa==nazwa) {
+            test=true;
+            break;
+        };
+    }
+    return test;
+}
 
 
