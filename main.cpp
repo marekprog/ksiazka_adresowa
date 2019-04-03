@@ -25,11 +25,12 @@ struct uzytkownik{
     string psswd;
 };
 
-int wpiszRekord(vector<wpis> *ksiazkaAdresowa,int indeks,int poczatek ){
+int wpiszRekord(vector<wpis> *ksiazkaAdresowa,int indeks,int *poczatek ){
 
     wpis nowyRekord;
 
-    nowyRekord.id=poczatek+1;
+    nowyRekord.id=*poczatek+1;
+    cout<<*poczatek<<endl;
     cout<<"Wprowadz imie: "<<endl;
     cin>>nowyRekord.imie;
     cout<<"Wprowadz nazwisko: "<<endl;
@@ -48,6 +49,8 @@ int wpiszRekord(vector<wpis> *ksiazkaAdresowa,int indeks,int poczatek ){
     cout<<"Zapisano nowy wpis \n";
     sleep(1);
     system("clear");
+    *poczatek=nowyRekord.id;
+    sleep(3);
     return 0;
 }
 
@@ -385,7 +388,7 @@ void menuKsiazki(vector<wpis> ksiazkaAdresowa,int indeks,int startWektora){
         switch (wybor) {
         case 1:
             system("clear");
-            wybor=wpiszRekord(&ksiazkaAdresowa,indeks,poczatek);
+            wybor=wpiszRekord(&ksiazkaAdresowa,indeks,&poczatek);
             break;
         case 2:
             system("clear");
