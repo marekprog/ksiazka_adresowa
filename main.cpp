@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include "uzytkownicy.h"
 
 using namespace std;
 
@@ -19,11 +20,11 @@ struct wpis{
     string email;
 };
 
-struct uzytkownik{
+/*struct uzytkownik{
     int id;
     string nazwa;
     string psswd;
-};
+};*/
 
 int wpiszRekord(vector<wpis> *ksiazkaAdresowa,int indeks,int *poczatek ){
 
@@ -300,11 +301,11 @@ int edycjaAdresata(vector<wpis> *ksiazkaAdresowa){
 }
 //FUNKCJE Z LOGOWANIEM
 void menuKsiazki(vector<wpis> ksiazkaAdresowa,int indeks,int startWektora);
-int dodajUzytkownika(vector<uzytkownik> *uzytkownicy);
+/*int dodajUzytkownika(vector<uzytkownik> *uzytkownicy);
 bool sprawdzCzyJestUzytkownik(vector<uzytkownik> uzytkownicy,string nazwa);
 int zapiszLogowania(vector<uzytkownik> *uzytkownicy);
 void odczytUzytkownikow(vector<uzytkownik> *uzytkownicy);
-int logowanie(vector<uzytkownik> *uzytkownicy,int iloscProb);
+int logowanie(vector<uzytkownik> *uzytkownicy,int iloscProb);*/
 int zapisDoPlikuTemp(vector<wpis> *ksiazkaAdresowa);
 void nadpiszPlik(vector<wpis> *ksiazkaAdresowa,int indeks);
 
@@ -316,14 +317,16 @@ int main()
     system("clear");
     int opcja{0},indeks{0};
     vector<wpis> ksiazkaAdresowa;
-    vector<uzytkownik> uzytkownicy;
-    odczytUzytkownikow(&uzytkownicy);
+    //vector<uzytkownik> uzytkownicy;
+    Uzytkownicy nowyUzytkownik;
+    //odczytUzytkownikow(&uzytkownicy);
+    nowyUzytkownik.odczytUzytkownikow();
     while(opcja ==0){
         //MENU GLOWNE
         system("clear");
         cout<<"KSIAZKA ADRESOWA"<<endl;
         cout<<"-----------------------"<<endl;
-        cout<<"Liczba zarejestrowanych uzytkownikow: "<<uzytkownicy.size()<<endl;
+        cout<<"Liczba zarejestrowanych uzytkownikow: "<<nowyUzytkownik.getSize()<<endl;
         cout<<"-----------------------"<<endl;
         cout<<"1. Logowanie"<<endl;
         cout<<"2. Rejestracja"<<endl;
@@ -332,7 +335,8 @@ int main()
         switch (opcja) {
         case 1:
             cout<<"Logowanie"<<endl;
-            indeks=logowanie(&uzytkownicy,3);
+            //indeks=logowanie(&uzytkownicy,3);
+            indeks=nowyUzytkownik.logowanie();
             if (indeks>0){
                 cout<<"Logowanie powiodło sie. "<<endl;
                 sleep(1);
@@ -345,8 +349,10 @@ int main()
             break;
         case 2:
             cout<<"Rejestracja"<<endl;
-            dodajUzytkownika(&uzytkownicy);
-            zapiszLogowania(&uzytkownicy);
+            //dodajUzytkownika(&uzytkownicy);
+            nowyUzytkownik.dodajUzytkownika();
+            //zapiszLogowania(&uzytkownicy);
+            nowyUzytkownik.zapiszLogowania();
             opcja=0;
             break;
         case 3:
@@ -427,7 +433,7 @@ void menuKsiazki(vector<wpis> ksiazkaAdresowa,int indeks,int startWektora){
     }
 }
 
-int dodajUzytkownika(vector<uzytkownik> *uzytkownicy){
+/*int dodajUzytkownika(vector<uzytkownik> *uzytkownicy){
 
     uzytkownik nowyRekord;
     if (uzytkownicy->size()==0)
@@ -448,7 +454,7 @@ int dodajUzytkownika(vector<uzytkownik> *uzytkownicy){
     sleep(1);
     system("clear");
     return 0;
-}
+}*/
 
 int zapiszLogowania(vector<uzytkownik> *uzytkownicy){
 
